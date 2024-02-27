@@ -5,8 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import WebSocket from './components/WebSocket.vue';
+  import WebSocket from "./components/WebSocket.vue";
 </script>
 
-<style>
-</style>
+<style></style>
