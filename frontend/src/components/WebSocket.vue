@@ -92,7 +92,7 @@
           <h3 v-if="win === false">You lost</h3>
         </div>
         <div v-if="isConnected && user !== null && isStarted && isAtRow">
-          <button @click="send(MessageType.KANNNICHT, user?.sessionId!)">
+          <button @click="send(MessageType.KANNNICHT, user?.sessionId!)" id="kannNicht">
             Kann nicht
           </button>
         </div>
@@ -181,6 +181,7 @@
   import { ref } from "vue";
   import { CardNumber, CardSymbol, MessageType } from "@/helpers/enums";
   import { Card, Client, Message, Payload } from "@/helpers/types";
+import { RefSymbol } from "@vue/reactivity";
 
   const isAtRow = ref(false);
   const isStarted = ref(false);
@@ -269,16 +270,7 @@
           (client) => client.userid !== data.payload.userid,
         );
         if (data.payload.userid === user.value?.userid) {
-          users.value = [];
-          cards.value = [];
           user.value = null;
-          topCard.value = null;
-          atRow.value = null;
-          isAtRow.value = false;
-          isStarted.value = false;
-          win.value = null;
-          message.value = { sessionId: "" };
-          payload.value = {};
         }
         users.value = newUsers;
         break;
@@ -621,5 +613,13 @@
     background-color: transparent;
     border-radius: 5px;
     border: black solid 2px;
+  }
+  #kannNicht {
+    width: 100px;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: black solid 2px;
+    font-weight: bold;
   }
 </style>
