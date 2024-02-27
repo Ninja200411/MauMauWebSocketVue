@@ -24,6 +24,7 @@ export enum MessageType {
   AUSSETZEN = "AUSSETZEN",
   PLAYEDCARD = "PLAYEDCARD",
   YOUPLAYEDCARD = "YOUPLAYEDCARD",
+  CARDCOUNT = 'CARDCOUNT',
 }
 export enum CardSymbol {
   KREUZ = "KREUZ",

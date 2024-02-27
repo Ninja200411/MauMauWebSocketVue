@@ -27,6 +27,7 @@ enum MessageType {
   AUSSETZEN = 'AUSSETZEN',
   PLAYEDCARD = 'PLAYEDCARD',
   YOUPLAYEDCARD = 'YOUPLAYEDCARD',
+  CARDCOUNT = 'CARDCOUNT',
 }
 enum CardSymbol {
   KREUZ = 'KREUZ',
@@ -283,7 +284,12 @@ function startSession(ws: WebSocket, message: Message): void {
           c.ws.send(JSON.stringify({ type: MessageType.STARTED }));
           c.ws.send(JSON.stringify({ type: MessageType.CARDS, payload: Array.from(c.cards.values()) }));
           c.ws.send(JSON.stringify({ type: MessageType.ATROW, payload: { userid: session.atRow!.userid } }));
-          c.ws.send(JSON.stringify({ type: MessageType.PLAYEDCARD, payload: session.topCard }));
+          c.ws.send(
+            JSON.stringify({
+              type: MessageType.PLAYEDCARD,
+              payload: { number: session.topCard?.number, symbol: session.topCard?.symbol, color: session.color },
+            }),
+          );
           c.ws.send(
             JSON.stringify({
               type: MessageType.USERS,
@@ -292,6 +298,14 @@ function startSession(ws: WebSocket, message: Message): void {
               }),
             }),
           );
+          session.clients.forEach((c2) => {
+            c.ws.send(
+              JSON.stringify({
+                type: MessageType.CARDCOUNT,
+                payload: { userid: c2.userid, count: c2.cards?.size },
+              }),
+            );
+          });
         });
       } else {
         ws.send(JSON.stringify({ type: MessageType.ERROR, payload: 'Not enough players' }));
@@ -395,6 +409,14 @@ function playCard(ws: WebSocket, message: Message) {
                     }),
                   );
                 }
+                session.clients.forEach((c2) => {
+                  c2.ws.send(
+                    JSON.stringify({
+                      type: MessageType.CARDCOUNT,
+                      payload: { userid: c.userid, count: c.cards?.size },
+                    }),
+                  );
+                });
                 c.ws.send(
                   JSON.stringify({
                     type: MessageType.ATROW,
@@ -403,6 +425,7 @@ function playCard(ws: WebSocket, message: Message) {
                 );
               });
             }
+            console.log(session.cards.length);
           }
         } else {
           ws.send(JSON.stringify({ type: MessageType.ERROR, payload: "You don't have this card" }));
@@ -444,6 +467,10 @@ function drawCard(ws: WebSocket, message: Message) {
             c.ws.send(JSON.stringify({ type: MessageType.ATROW, payload: { userid: session.atRow?.userid } }));
           });
         } else {
+          session.gezogen = true;
+          session.clients.forEach((c) => {
+            c.ws.send(JSON.stringify({ type: MessageType.ATROW, payload: { userid: session.atRow?.userid } }));
+          });
           ws.send(JSON.stringify({ type: MessageType.ERROR, payload: 'No more cards' }));
         }
       }

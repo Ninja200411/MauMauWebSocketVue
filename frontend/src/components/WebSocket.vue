@@ -6,9 +6,9 @@
         <li
           v-for="u in users"
           :class="
-            (user.userid === u.userid ? 'self' : '') +
+            (user?.userid === u.userid ? 'self' : '') +
             ' ' +
-            (u.userid === atRow ? 'atRow' : '')
+            (u.userid === atRow ? 'atRow player' : 'player')
           "
         >
           {{ u.username }}
@@ -73,11 +73,11 @@
             v-if="topCard !== null"
             :src="
               topCard.number === CardNumber.BUBE
-                ? getImage({ symbol: topCard.color, number: CardNumber.BUBE })
+                ? getImage({ symbol: topCard.color!, number: CardNumber.BUBE })
                 : getImage(topCard)
             "
           />
-          <img v-if="topCard === null" src="../pictures/Blank.png" />
+          <img v-if="topCard === null" src="../pictures/Blank2.png" />
         </div>
         <div v-if="isConnected && user !== null && !isStarted">
           <h3>Waiting for other players</h3>
@@ -85,8 +85,8 @@
 
         <div v-if="isConnected && user !== null && isStarted">
           <h3 v-if="isAtRow && win === null">You are at row</h3>
-          <h3 v-if="!isAtRow && win === null">
-            {{ users!.find((u) => u.userid == atRow).username }} is at row
+          <h3 v-if="!isAtRow && win === null && atRow !== null">
+            {{ users!.find((u) => u.userid == atRow)!.username }} is at row
           </h3>
           <h3 v-if="win === true">You won</h3>
           <h3 v-if="win === false">You lost</h3>
@@ -180,7 +180,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { CardNumber, CardSymbol, MessageType } from "@/helpers/enums";
-  import { Card, Client, Message, Payload } from "@/helpers/types";
+  import {AktivPlayer, Card, Client, Message, Payload} from "@/helpers/types";
 import { RefSymbol } from "@vue/reactivity";
 
   const isAtRow = ref(false);
@@ -195,6 +195,8 @@ import { RefSymbol } from "@vue/reactivity";
   const win = ref<boolean | null>(null);
   const message = ref<Message>({ sessionId: "" });
   const payload = ref<Payload>({});
+  const aktivePlayers = ref<AktivPlayer[]>([]);
+
 
   function getImage(card: Card) {
     return `src/pictures/${card.symbol.charAt(0).toUpperCase() + card.symbol.slice(1).toLowerCase()}-${card.number}.png`;
@@ -271,6 +273,13 @@ import { RefSymbol } from "@vue/reactivity";
         );
         if (data.payload.userid === user.value?.userid) {
           user.value = null;
+          topCard.value = null;
+          atRow.value = null;
+          isAtRow.value = false;
+          win.value = null;
+          isStarted.value = false;
+          users.value = [];
+          cards.value = [];
         }
         users.value = newUsers;
         break;
@@ -327,7 +336,18 @@ import { RefSymbol } from "@vue/reactivity";
         isAtRow.value = false;
         win.value = true;
         break;
+      case MessageType.CARDCOUNT:
+        console.log("Card count");
+        aktivePlayers.value.push(data.payload);
+        break;
+      case MessageType.ERROR:
+        console.log("Error");
+        console.log(data.payload);
+
+        break;
+
     }
+    console.log("Aktive Players", aktivePlayers.value);
   }
 
   function onError(event: Event) {
@@ -622,4 +642,5 @@ import { RefSymbol } from "@vue/reactivity";
     border: black solid 2px;
     font-weight: bold;
   }
+
 </style>

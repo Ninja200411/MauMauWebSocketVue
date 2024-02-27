@@ -8,6 +8,7 @@ export type Message = {
 export type Card = {
   symbol: CardSymbol;
   number: CardNumber;
+  color?: CardSymbol;
 };
 
 export type Client = {
@@ -38,3 +39,8 @@ export type Payload = {
   symbol?: CardSymbol;
   number?: CardNumber;
 };
+
+export type AktivPlayer = {
+  userid: string;
+  count: string;
+}
