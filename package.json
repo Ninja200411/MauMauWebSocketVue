@@ -1,0 +1,11 @@
+{
+  "name": "mau-mau",
+  "version": "1.0.0",
+  "description": "Mau Mau",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lars Hurst",
+  "license": "ISC"
+}
